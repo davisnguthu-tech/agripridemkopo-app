@@ -1,7 +1,9 @@
 import { Link, useLocation } from "wouter";
-import { Users, FileText, Banknote, LayoutDashboard, Menu, Sprout } from "lucide-react";
+import { Users, FileText, Banknote, LayoutDashboard, Menu, Sprout, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import { useAuth } from "@/hooks/use-auth";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface NavItem {
   href: string;
@@ -18,6 +20,7 @@ const navItems: NavItem[] = [
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
+  const { user, logout } = useAuth();
 
   const NavLinks = ({ className = "" }: { className?: string }) => (
     <nav className={`flex flex-col gap-2 ${className}`}>
@@ -83,10 +86,27 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </SheetContent>
           </Sheet>
           <div className="flex-1 flex justify-end">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              <span className="hidden sm:block text-sm text-muted-foreground">
+                {user?.displayName}
+              </span>
               <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
-                MK
+                {user?.displayName?.slice(0, 2).toUpperCase() ?? "MK"}
               </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                    onClick={logout}
+                    aria-label="Sign out"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Sign out</TooltipContent>
+              </Tooltip>
             </div>
           </div>
         </header>

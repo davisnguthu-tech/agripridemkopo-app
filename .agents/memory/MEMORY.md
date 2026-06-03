@@ -1,0 +1,2 @@
+- [Auth Architecture](auth-architecture.md) — two coexisting auth systems: Clerk (applicants) wraps entire app, session auth wraps officer sub-routes only.
+- [Clerk Setup](clerk-setup.md) — Clerk provisioned (app_3EdsFNv4ePJIWv8kxqjyQQdEAPQ), SMS not supported, email + Google only; key rules for routing and appearance.

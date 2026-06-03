@@ -3,20 +3,34 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: AgriPride Mkopo - Agricultural Loan Management Platform API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: farmers
+    description: Farmer management
+  - name: loan-applications
+    description: Loan application management
+  - name: loans
+    description: Active loan management
+  - name: repayments
+    description: Loan repayment management
+  - name: dashboard
+    description: Dashboard analytics
+  - name: ussd
+    description: USSD webhook endpoints
+  - name: mpesa
+    description: M-Pesa payment webhooks
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +38,600 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ─── Farmers ────────────────────────────────────────────────────────────────
+  /farmers:
+    get:
+      operationId: listFarmers
+      tags: [farmers]
+      summary: List all farmers
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          required: false
+      responses:
+        "200":
+          description: List of farmers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Farmer"
+    post:
+      operationId: createFarmer
+      tags: [farmers]
+      summary: Register a new farmer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FarmerInput"
+      responses:
+        "201":
+          description: Farmer created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Farmer"
+
+  /farmers/{id}:
+    get:
+      operationId: getFarmer
+      tags: [farmers]
+      summary: Get farmer by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Farmer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Farmer"
+        "404":
+          description: Not found
+
+  # ─── Loan Applications ───────────────────────────────────────────────────────
+  /loan-applications:
+    get:
+      operationId: listLoanApplications
+      tags: [loan-applications]
+      summary: List loan applications
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+          required: false
+        - in: query
+          name: farmerId
+          schema:
+            type: integer
+          required: false
+      responses:
+        "200":
+          description: List of loan applications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LoanApplication"
+    post:
+      operationId: createLoanApplication
+      tags: [loan-applications]
+      summary: Submit a new loan application
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoanApplicationInput"
+      responses:
+        "201":
+          description: Application submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoanApplication"
+
+  /loan-applications/{id}:
+    get:
+      operationId: getLoanApplication
+      tags: [loan-applications]
+      summary: Get loan application by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Loan application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoanApplication"
+        "404":
+          description: Not found
+
+  /loan-applications/{id}/score:
+    post:
+      operationId: scoreLoanApplication
+      tags: [loan-applications]
+      summary: Run AI credit scoring on an application
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Credit score result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreditScoreResult"
+
+  /loan-applications/{id}/approve:
+    patch:
+      operationId: approveLoanApplication
+      tags: [loan-applications]
+      summary: Approve a loan application
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoanDecision"
+      responses:
+        "200":
+          description: Application approved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoanApplication"
+
+  /loan-applications/{id}/reject:
+    patch:
+      operationId: rejectLoanApplication
+      tags: [loan-applications]
+      summary: Reject a loan application
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoanDecision"
+      responses:
+        "200":
+          description: Application rejected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoanApplication"
+
+  # ─── Loans ───────────────────────────────────────────────────────────────────
+  /loans:
+    get:
+      operationId: listLoans
+      tags: [loans]
+      summary: List active loans
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+          required: false
+        - in: query
+          name: farmerId
+          schema:
+            type: integer
+          required: false
+      responses:
+        "200":
+          description: List of loans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Loan"
+
+  /loans/{id}:
+    get:
+      operationId: getLoan
+      tags: [loans]
+      summary: Get loan by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Loan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Loan"
+        "404":
+          description: Not found
+
+  /loans/{id}/disburse:
+    post:
+      operationId: disburseLoan
+      tags: [loans]
+      summary: Disburse loan via M-Pesa B2C
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Disbursement initiated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DisburseResult"
+
+  /loans/{id}/repayments:
+    get:
+      operationId: listRepayments
+      tags: [repayments]
+      summary: List repayments for a loan
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of repayments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Repayment"
+
+  /loans/{id}/repay:
+    post:
+      operationId: initiateRepayment
+      tags: [repayments]
+      summary: Initiate M-Pesa STK push for loan repayment
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RepaymentInput"
+      responses:
+        "200":
+          description: STK push sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StkPushResult"
+
+  # ─── Dashboard ───────────────────────────────────────────────────────────────
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      summary: Get dashboard summary statistics
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /dashboard/recent-activity:
+    get:
+      operationId: getRecentActivity
+      tags: [dashboard]
+      summary: Get recent activity feed
+      responses:
+        "200":
+          description: Recent activity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
+  /dashboard/portfolio:
+    get:
+      operationId: getLoanPortfolio
+      tags: [dashboard]
+      summary: Get loan portfolio breakdown by crop type and county
+      responses:
+        "200":
+          description: Portfolio breakdown
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoanPortfolio"
+
+  # ─── USSD ────────────────────────────────────────────────────────────────────
+  /ussd:
+    post:
+      operationId: handleUssd
+      tags: [ussd]
+      summary: Africa's Talking USSD webhook
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/UssdRequest"
+      responses:
+        "200":
+          description: USSD response text
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  # ─── M-Pesa Callbacks ─────────────────────────────────────────────────────────
+  /mpesa/stk-callback:
+    post:
+      operationId: mpesaStkCallback
+      tags: [mpesa]
+      summary: M-Pesa STK push callback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MpesaCallback"
+      responses:
+        "200":
+          description: Acknowledged
+
+  /mpesa/b2c-callback:
+    post:
+      operationId: mpesaB2cCallback
+      tags: [mpesa]
+      summary: M-Pesa B2C result callback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MpesaCallback"
+      responses:
+        "200":
+          description: Acknowledged
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    # ─── Farmer ────────────────────────────────────────────────────────────────
+    Farmer:
+      type: object
+      required: [id, phone, name, nationalId, county, farmSizeAcres, cropType, createdAt]
+      properties:
+        id:            { type: integer }
+        phone:         { type: string }
+        name:          { type: string }
+        nationalId:    { type: string }
+        county:        { type: string }
+        farmSizeAcres: { type: number }
+        cropType:      { type: string }
+        createdAt:     { type: string }
+
+    FarmerInput:
+      type: object
+      required: [phone, name, nationalId, county, farmSizeAcres, cropType]
+      properties:
+        phone:         { type: string }
+        name:          { type: string }
+        nationalId:    { type: string }
+        county:        { type: string }
+        farmSizeAcres: { type: number }
+        cropType:      { type: string }
+
+    # ─── Loan Application ────────────────────────────────────────────────────
+    LoanApplication:
+      type: object
+      required: [id, farmerId, amountRequested, purpose, status, createdAt]
+      properties:
+        id:              { type: integer }
+        farmerId:        { type: integer }
+        farmerName:      { type: ["string", "null"] }
+        farmerPhone:     { type: ["string", "null"] }
+        amountRequested: { type: number }
+        purpose:         { type: string }
+        status:          { type: string }
+        aiScore:         { type: ["number", "null"] }
+        aiRecommendation: { type: ["string", "null"] }
+        reviewNote:      { type: ["string", "null"] }
+        createdAt:       { type: string }
+        updatedAt:       { type: string }
+
+    LoanApplicationInput:
+      type: object
+      required: [farmerId, amountRequested, purpose]
+      properties:
+        farmerId:        { type: integer }
+        amountRequested: { type: number }
+        purpose:         { type: string }
+
+    LoanDecision:
+      type: object
+      properties:
+        reviewNote: { type: string }
+        approvedAmount: { type: number }
+
+    CreditScoreResult:
+      type: object
+      required: [score, recommendation, factors]
+      properties:
+        score:          { type: number }
+        recommendation: { type: string }
+        factors:
+          type: array
+          items:
+            type: string
+
+    # ─── Loan ────────────────────────────────────────────────────────────────
+    Loan:
+      type: object
+      required: [id, applicationId, farmerId, amount, interestRate, status, dueDate, createdAt]
+      properties:
+        id:            { type: integer }
+        applicationId: { type: integer }
+        farmerId:      { type: integer }
+        farmerName:    { type: ["string", "null"] }
+        farmerPhone:   { type: ["string", "null"] }
+        amount:        { type: number }
+        interestRate:  { type: number }
+        status:        { type: string }
+        dueDate:       { type: string }
+        disbursedAt:   { type: ["string", "null"] }
+        mpesaReceipt:  { type: ["string", "null"] }
+        amountPaid:    { type: ["number", "null"] }
+        createdAt:     { type: string }
+
+    DisburseResult:
+      type: object
+      required: [message, conversationId]
+      properties:
+        message:        { type: string }
+        conversationId: { type: string }
+
+    # ─── Repayment ───────────────────────────────────────────────────────────
+    Repayment:
+      type: object
+      required: [id, loanId, amount, paidAt]
+      properties:
+        id:           { type: integer }
+        loanId:       { type: integer }
+        amount:       { type: number }
+        mpesaReceipt: { type: ["string", "null"] }
+        paidAt:       { type: string }
+
+    RepaymentInput:
+      type: object
+      required: [amount, phone]
+      properties:
+        amount: { type: number }
+        phone:  { type: string }
+
+    StkPushResult:
+      type: object
+      required: [message, checkoutRequestId]
+      properties:
+        message:           { type: string }
+        checkoutRequestId: { type: string }
+
+    # ─── Dashboard ───────────────────────────────────────────────────────────
+    DashboardStats:
+      type: object
+      required: [totalFarmers, totalLoansKes, activeLoanCount, defaultRate, pendingApplications, disbursedThisMonth, repaidThisMonth, portfolioAtRisk]
+      properties:
+        totalFarmers:          { type: integer }
+        totalLoansKes:         { type: number }
+        activeLoanCount:       { type: integer }
+        defaultRate:           { type: number }
+        pendingApplications:   { type: integer }
+        disbursedThisMonth:    { type: number }
+        repaidThisMonth:       { type: number }
+        portfolioAtRisk:       { type: number }
+
+    ActivityItem:
+      type: object
+      required: [id, type, description, timestamp]
+      properties:
+        id:          { type: string }
+        type:        { type: string }
+        description: { type: string }
+        timestamp:   { type: string }
+        amount:      { type: ["number", "null"] }
+        farmerName:  { type: ["string", "null"] }
+
+    LoanPortfolio:
+      type: object
+      required: [byCrop, byCounty, byStatus]
+      properties:
+        byCrop:
+          type: array
+          items:
+            $ref: "#/components/schemas/PortfolioSegment"
+        byCounty:
+          type: array
+          items:
+            $ref: "#/components/schemas/PortfolioSegment"
+        byStatus:
+          type: array
+          items:
+            $ref: "#/components/schemas/PortfolioSegment"
+
+    PortfolioSegment:
+      type: object
+      required: [label, count, amountKes]
+      properties:
+        label:     { type: string }
+        count:     { type: integer }
+        amountKes: { type: number }
+
+    # ─── USSD ────────────────────────────────────────────────────────────────
+    UssdRequest:
+      type: object
+      required: [sessionId, phoneNumber, text]
+      properties:
+        sessionId:    { type: string }
+        phoneNumber:  { type: string }
+        text:         { type: string }
+        networkCode:  { type: string }
+        serviceCode:  { type: string }
+
+    # ─── M-Pesa ──────────────────────────────────────────────────────────────
+    MpesaCallback:
+      type: object
+      properties:
+        Body:
+          type: object
+          additionalProperties: true

@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "AgriPride Mkopo"
+version = "1.0.0"
+id = "artifacts/agripride"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21731
+
+[services.development]
+run = "pnpm --filter @workspace/agripride run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/agripride", "run", "build" ]
+publicDir = "artifacts/agripride/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21731"
+BASE_PATH = "/"

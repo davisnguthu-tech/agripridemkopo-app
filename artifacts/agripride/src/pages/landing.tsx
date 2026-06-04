@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Sprout, ArrowRight, CheckCircle, ShieldCheck, Zap } from "lucide-react";
+import { Sprout, ArrowRight, CheckCircle, ShieldCheck, Zap, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const features = [
@@ -20,9 +20,14 @@ export function Landing() {
           <span className="font-bold text-lg tracking-tight">AgriPride Mkopo</span>
         </div>
         <div className="flex items-center gap-2">
+          <Link href="/about">
+            <Button variant="ghost" size="sm" className="text-muted-foreground text-xs gap-1">
+              <Info className="h-3 w-3" /> About
+            </Button>
+          </Link>
           <Link href="/officer">
             <Button variant="ghost" size="sm" className="text-muted-foreground text-xs">
-              Loan Officer Portal
+              Officer Portal
             </Button>
           </Link>
           <Link href="/sign-in">

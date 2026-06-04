@@ -2,6 +2,7 @@ import { Router, type IRouter, type Request, type Response, type NextFunction } 
 import healthRouter from "./health";
 import authRouter from "./auth";
 import applicantRouter from "./applicant";
+import coachRouter from "./coach";
 import farmersRouter from "./farmers";
 import loanApplicationsRouter from "./loanApplications";
 import loansRouter from "./loans";
@@ -29,6 +30,7 @@ function requireOfficerAuth(req: Request, res: Response, next: NextFunction) {
 router.use(healthRouter);
 router.use(authRouter);
 router.use(applicantRouter);
+router.use(coachRouter);
 router.use(requireOfficerAuth);
 router.use(farmersRouter);
 router.use(loanApplicationsRouter);

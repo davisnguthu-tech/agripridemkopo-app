@@ -1,2 +1,3 @@
 - [Auth Architecture](auth-architecture.md) — two coexisting auth systems: Clerk (applicants) wraps entire app, session auth wraps officer sub-routes only.
-- [Clerk Setup](clerk-setup.md) — Clerk provisioned (app_3EdsFNv4ePJIWv8kxqjyQQdEAPQ), SMS not supported, email + Google only; key rules for routing and appearance.
+- [Clerk Setup](clerk-setup.md) — Clerk provisioned, SMS not supported; afterSignInUrl/afterSignUpUrl must be set to /portal or portal redirect breaks.
+- [Dark Mode](dark-mode.md) — dark mode is permanent (class="dark" on html element in index.html); Clerk appearance uses dark variables.

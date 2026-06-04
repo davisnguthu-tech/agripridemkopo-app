@@ -9,6 +9,7 @@ import { shadcn } from "@clerk/themes";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 
 import { Landing } from "@/pages/landing";
+import { About } from "@/pages/about";
 import { Layout } from "@/components/layout";
 import { PortalLayout } from "@/components/portal-layout";
 import { Dashboard } from "@/pages/dashboard";
@@ -23,6 +24,7 @@ import { PortalHome } from "@/pages/portal/index";
 import { Apply } from "@/pages/portal/apply";
 import { ApplicationDetail } from "@/pages/portal/application-detail";
 import { PortalProfile } from "@/pages/portal/profile";
+import { FinancialCoach } from "@/pages/portal/coach";
 import NotFound from "@/pages/not-found";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -52,41 +54,41 @@ const clerkAppearance = {
     socialButtonsVariant: "blockButton" as const,
   },
   variables: {
-    colorPrimary: "#2D5A1B",
-    colorForeground: "#1a1a14",
-    colorMutedForeground: "#6b7059",
-    colorDanger: "#dc2626",
-    colorBackground: "#f9f7f3",
-    colorInput: "#ffffff",
-    colorInputForeground: "#1a1a14",
-    colorNeutral: "#d4cfbf",
+    colorPrimary: "#4ade80",
+    colorForeground: "#f0fdf4",
+    colorMutedForeground: "#86efac",
+    colorDanger: "#f87171",
+    colorBackground: "#0f1a0f",
+    colorInput: "#1a2e1a",
+    colorInputForeground: "#f0fdf4",
+    colorNeutral: "#2d4a2d",
     fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
     borderRadius: "0.5rem",
   },
   elements: {
     rootBox: "w-full flex justify-center",
-    cardBox: "bg-card rounded-2xl w-[440px] max-w-full overflow-hidden shadow-sm border border-border",
-    card: "!shadow-none !border-0 !bg-transparent !rounded-none",
-    footer: "!shadow-none !border-0 !bg-transparent !rounded-none",
-    headerTitle: "text-foreground font-bold",
-    headerSubtitle: "text-muted-foreground",
-    socialButtonsBlockButtonText: "text-foreground font-medium",
-    formFieldLabel: "text-foreground text-sm font-medium",
-    footerActionLink: "text-primary font-semibold hover:underline",
-    footerActionText: "text-muted-foreground",
-    dividerText: "text-muted-foreground text-xs",
-    identityPreviewEditButton: "text-primary",
-    formFieldSuccessText: "text-green-600",
-    alertText: "text-foreground",
+    cardBox: "rounded-2xl w-[440px] max-w-full overflow-hidden shadow-xl border border-[#2d4a2d]",
+    card: "!shadow-none !border-0 !rounded-none",
+    footer: "!shadow-none !border-0 !rounded-none",
+    headerTitle: "font-bold",
+    headerSubtitle: "",
+    socialButtonsBlockButtonText: "font-medium",
+    formFieldLabel: "text-sm font-medium",
+    footerActionLink: "font-semibold hover:underline",
+    footerActionText: "",
+    dividerText: "text-xs",
+    identityPreviewEditButton: "",
+    formFieldSuccessText: "",
+    alertText: "",
     logoBox: "flex justify-center",
     logoImage: "h-10 w-auto",
-    socialButtonsBlockButton: "border border-border bg-card hover:bg-muted text-foreground rounded-md",
-    formButtonPrimary: "bg-primary hover:bg-primary/90 text-primary-foreground rounded-md font-semibold",
-    formFieldInput: "border-border bg-input text-foreground rounded-md",
-    footerAction: "border-t border-border",
-    dividerLine: "bg-border",
-    alert: "border border-border bg-card rounded-md",
-    otpCodeFieldInput: "border-border",
+    socialButtonsBlockButton: "rounded-md",
+    formButtonPrimary: "rounded-md font-semibold",
+    formFieldInput: "rounded-md",
+    footerAction: "border-t",
+    dividerLine: "",
+    alert: "rounded-md",
+    otpCodeFieldInput: "",
     formFieldRow: "gap-3",
     main: "gap-4",
   },
@@ -114,7 +116,13 @@ function ClerkQueryClientCacheInvalidator() {
 function SignInPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} />
+      <SignIn
+        routing="path"
+        path={`${basePath}/sign-in`}
+        signUpUrl={`${basePath}/sign-up`}
+        fallbackRedirectUrl={`${basePath}/portal`}
+        forceRedirectUrl={undefined}
+      />
     </div>
   );
 }
@@ -122,7 +130,13 @@ function SignInPage() {
 function SignUpPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} />
+      <SignUp
+        routing="path"
+        path={`${basePath}/sign-up`}
+        signInUrl={`${basePath}/sign-in`}
+        fallbackRedirectUrl={`${basePath}/portal`}
+        forceRedirectUrl={undefined}
+      />
     </div>
   );
 }
@@ -169,6 +183,7 @@ function ApplicantPortal() {
           <Route path="/portal/apply" component={Apply} />
           <Route path="/portal/applications/:id" component={ApplicationDetail} />
           <Route path="/portal/profile" component={PortalProfile} />
+          <Route path="/portal/coach" component={FinancialCoach} />
           <Route component={NotFound} />
         </Switch>
       </PortalLayout>
@@ -186,6 +201,8 @@ function AppRoutes() {
       appearance={clerkAppearance}
       signInUrl={`${basePath}/sign-in`}
       signUpUrl={`${basePath}/sign-up`}
+      afterSignInUrl={`${basePath}/portal`}
+      afterSignUpUrl={`${basePath}/portal`}
       localization={{
         signIn: { start: { title: "Welcome back", subtitle: "Sign in to your AgriPride account" } },
         signUp: { start: { title: "Apply for a loan", subtitle: "Create your AgriPride account to get started" } },
@@ -199,6 +216,7 @@ function AppRoutes() {
           <AuthProvider>
             <Switch>
               <Route path="/" component={Landing} />
+              <Route path="/about" component={About} />
               <Route path="/sign-in/*?" component={SignInPage} />
               <Route path="/sign-up/*?" component={SignUpPage} />
               <Route path="/portal" component={ApplicantPortal} />

@@ -12,10 +12,10 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/farmers", label: "Farmers", icon: Users },
-  { href: "/loan-applications", label: "Applications", icon: FileText },
-  { href: "/loans", label: "Loans", icon: Banknote },
+  { href: "/officer", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/officer/farmers", label: "Farmers", icon: Users },
+  { href: "/officer/loan-applications", label: "Applications", icon: FileText },
+  { href: "/officer/loans", label: "Loans", icon: Banknote },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -25,7 +25,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const NavLinks = ({ className = "" }: { className?: string }) => (
     <nav className={`flex flex-col gap-2 ${className}`}>
       {navItems.map((item) => {
-        const isActive = location === item.href || (item.href !== "/" && location.startsWith(item.href));
+        const isActive = location === item.href || location.startsWith(item.href + "/");
         return (
           <Link key={item.href} href={item.href} className="w-full">
             <div
